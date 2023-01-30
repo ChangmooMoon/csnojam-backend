@@ -18,13 +18,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.web.servlet.function.ServerResponse.status;
 
-
+@WebAppConfiguration
 public class UserControllerTest extends ControllerTest {
 
     @MockBean
@@ -39,6 +40,7 @@ public class UserControllerTest extends ControllerTest {
     @Test
     void UserJoinTest() throws Exception {
 
+        objectMapper = new ObjectMapper();
         String loginUrl = "/api/user/join";
 
         // given
