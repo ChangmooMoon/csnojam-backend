@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -52,11 +53,13 @@ public class UserControllerTest extends ControllerTest {
 
 
         // when
-        mockMvc.perform(post(loginUrl)
+        ResultActions perform = mockMvc.perform(post(loginUrl)
                 .headers(HttpHeaders.EMPTY)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(content))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .content(content));
+
+        // then
+        perform.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string("success"));
     }
 }
