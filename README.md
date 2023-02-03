@@ -1,7 +1,6 @@
 # csnojam-backend(v1)
 
-This project is source code of velog v1. After v2 update, this project is now archived. For source
-code of v2, check out the links below:
+This project is source code of csnojam v1.
 
 - https://github.com/csnojam/csnojam-frontend
 - https://github.com/csnojam/csnojam-backend
