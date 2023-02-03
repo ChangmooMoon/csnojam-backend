@@ -1,4 +1,4 @@
-package csnojam.app.web;
+package csnojam.app.system;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
