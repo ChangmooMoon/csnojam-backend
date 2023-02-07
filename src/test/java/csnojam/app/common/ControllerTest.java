@@ -1,19 +1,16 @@
-package csnojam.example.csnojam;
+package csnojam.app.common;
+
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.internal.matchers.ArrayEquals;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
-@SpringBootTest(classes = CsnojamApplication.class)
-@AutoConfigureMockMvc
+@ComponentScan(basePackages = {"org.springframework.security"})
 public abstract class ControllerTest {
     protected MockMvc mockMvc;
 
@@ -31,4 +28,5 @@ public abstract class ControllerTest {
         })).build();
 
     }
+
 }

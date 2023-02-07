@@ -1,7 +1,8 @@
-package csnojam.example.csnojam.user;
+package csnojam.app.user;
 
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -18,13 +19,16 @@ public class User{
     @Id
     private UUID id;
     private String email;
+    private String name;
     private String password;
     private String profileUrl;
 
-    public User(UUID id, String email, String password){
-        this.id = id;
+    @Builder
+    public User(String email, String password, String name){
+        this.id = UUID.randomUUID();
         this.email = email;
         this.password = password;
+        this.name = name;
     }
 
     public User updateEmail(String email){

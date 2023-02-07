@@ -1,6 +1,6 @@
-package csnojam.example.csnojam.user.dto;
+package csnojam.app.user.dto;
 
-import csnojam.example.csnojam.user.User;
+import csnojam.app.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +14,7 @@ import org.springframework.beans.BeanUtils;
 public class UserJoinDto {
     private String email;
     private String password;
+    private String name;
 
     public User asEntity(){
         User user = new User();
