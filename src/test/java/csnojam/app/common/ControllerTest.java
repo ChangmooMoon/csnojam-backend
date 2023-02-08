@@ -10,7 +10,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
-@ComponentScan(basePackages = {"org.springframework.security"})
+@ComponentScan({"csnojam.app.config", "csnojam.app.jwt"})
 public abstract class ControllerTest {
     protected MockMvc mockMvc;
 
