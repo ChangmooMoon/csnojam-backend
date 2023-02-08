@@ -17,7 +17,7 @@ public class UserJoinDto {
     private String name;
 
     public User asEntity(){
-        User user = new User();
+        User user = User.builder().build();
         BeanUtils.copyProperties(this, user);
         return user;
     }
