@@ -30,7 +30,7 @@ public class UserService {
             User user = User.builder()
                     .email(userJoinDto.getEmail())
                     .password(encoder.encode(userJoinDto.getPassword()))
-                    .name(userJoinDto.getName()).build();
+                    .nickname(userJoinDto.getName()).build();
 
             System.out.println("유저 객체 생성");
 
@@ -49,7 +49,7 @@ public class UserService {
     }
 
     private void checkDuplicateName(String name) throws  Exception{
-        if(userRepository.findByName(name).isPresent()){
+        if(userRepository.findByNickname(name).isPresent()){
             throw new Exception();
         }
     }

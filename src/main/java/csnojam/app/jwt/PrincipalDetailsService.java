@@ -21,7 +21,7 @@ public class PrincipalDetailsService implements UserDetailsService {
 
         PrincipalDetails principalDetails = PrincipalDetails.builder()
                 .id(user.getId())
-                .name(user.getName())
+                .name(user.getNickname())
                 .email(user.getEmail())
                 .password(user.getPassword())
                 .profileUrl(user.getProfileUrl())

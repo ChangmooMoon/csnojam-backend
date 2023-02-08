@@ -66,7 +66,11 @@ public class UserControllerTest extends ControllerTest {
         String loginUrl = "/api/user/login";
 
         // given
-        User user = new User("yujinkim@test.com", "123456789", "yujin");
+        User user = User.builder()
+                .email("yujinkim@test.com")
+                .password("123456789")
+                .nickname("yujin")
+                .build();
         userRepository.save(user);
 
         UserLoginDto userLoginDto = UserLoginDto.builder()
