@@ -35,7 +35,7 @@ public class UserControllerTest extends ControllerTest {
     void UserJoinTest() throws Exception {
 
         objectMapper = new ObjectMapper();
-        String joinUrl = "/api/user/join";
+        String joinUrl = "/members/sign-up";
 
         // given
         UserJoinDto userJoinDto = UserJoinDto.builder()
@@ -63,7 +63,7 @@ public class UserControllerTest extends ControllerTest {
     @Test
     void UserLoginSuccessTest() throws Exception {
         objectMapper = new ObjectMapper();
-        String loginUrl = "/api/user/login";
+        String loginUrl = "/members/sign-in";
 
         // given
         User user = User.builder()
@@ -96,7 +96,7 @@ public class UserControllerTest extends ControllerTest {
     @Test
     void UserLoginFailTest() throws Exception {
         objectMapper = new ObjectMapper();
-        String loginUrl = "/api/user/login";
+        String loginUrl = "/members/sign-in";
 
         // given
         UserLoginDto userLoginDto = UserLoginDto.builder()
