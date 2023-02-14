@@ -1,7 +1,12 @@
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '2.7.8'
 	id 'io.spring.dependency-management' version '1.1.0'
+	id 'org.asciidoctor.jvm.convert' version '3.3.2'
+	id 'com.epages.restdocs-api-spec' version '0.16.4'
+	id 'org.hidetake.swagger.generator' version '2.18.2'
 }
 
 group = 'csnojam-backend.project'
@@ -9,6 +14,7 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
 configurations {
+	asciidoctorExtensions
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
@@ -35,7 +41,6 @@ dependencies {
 	implementation 'com.google.guava:guava:31.1-jre'
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-//	asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
 
 
@@ -51,10 +56,51 @@ dependencies {
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-//	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+	testImplementation 'com.epages:restdocs-api-spec-mockmvc:0.16.4'
+
+	asciidoctorExtensions 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+
+	swaggerUI 'org.webjars:swagger-ui:4.1.3'
 }
 
 tasks.named('test') {
 	outputs.dir snippetsDir
 	useJUnitPlatform()
+}
+
+openapi3 {
+    servers = [
+			{ url = 'http://localhost:8080' }
+    ]
+	title = 'CS No Jam API'
+	description = ''
+	version = "${project.version}"
+	format = 'yaml'
+
+	copy {
+		from "build/api-spec"
+		into "src/main/resources/static/docs/"
+	}
+}
+
+swaggerSources {
+	register('CSNoJamApiDocument').configure {
+		setInputFile(file("${project.buildDir}/api-spec/openapi3.yaml"))
+	}
+}
+
+tasks.withType(GenerateSwaggerUI) {
+	dependsOn('openapi3')
+}
+
+tasks.register('copySwaggerUI', Copy) {
+	dependsOn('generateSwaggerUICSNoJamApiDocument')
+	def generateSwaggerTask = tasks.named('generateSwaggerUICSNoJamApiDocument', GenerateSwaggerUI).get()
+	from("${generateSwaggerTask.outputDir}")
+	into("${project.buildDir}/resources/main/static")
+}
+
+tasks.withType(BootJar) {
+	dependsOn('copySwaggerUI')
 }
