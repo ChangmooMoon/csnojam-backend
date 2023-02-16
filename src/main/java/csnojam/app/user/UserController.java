@@ -1,14 +1,20 @@
 package csnojam.app.user;
 
+import csnojam.app.common.response.ApiResponse;
 import csnojam.app.user.dto.*;
+import csnojam.app.user.enums.UniqueFields;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import static csnojam.app.common.response.StatusMessage.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -42,5 +48,14 @@ public class UserController {
             log.error(e.getMessage());
             return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("validate/{field}")
+    public ResponseEntity<?> checkDuplication(@PathVariable UniqueFields field,
+                                              String value) {
+        if(userService.checkFieldDuplication(field, value))
+            return ApiResponse.withNothing(INVALID_FIELD);
+        else
+            return ApiResponse.withNothing(VALID_FIELD);
     }
 }
