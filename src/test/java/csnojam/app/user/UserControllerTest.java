@@ -135,6 +135,8 @@ public class UserControllerTest extends ControllerTest {
     @DisplayName("필드 중복 확인")
     @Nested
     class Duplication {
+        private final String PATH = "/members/validate/{field}";
+
         @DisplayName("중복되지 않은 닉네임")
         @Test
         void uniqueNickname() throws Exception {
@@ -146,7 +148,7 @@ public class UserControllerTest extends ControllerTest {
                     .willReturn(false);
 
             // when
-            ResultActions resultActions = mockMvc.perform(get("/members/validation/{field}", field)
+            ResultActions resultActions = mockMvc.perform(get(PATH, field)
                     .param("value", nickname));
 
             // then
@@ -154,7 +156,7 @@ public class UserControllerTest extends ControllerTest {
                     .andExpect(jsonPath("$.message").value(VALID_FIELD.getMessage()));
 
             // documentation
-            resultActions.andDo(document("check validation",
+            resultActions.andDo(document("checkValidation",
                     getDocumentRequest(),
                     getDocumentResponse(),
                     ResourceDocumentation.resource(
@@ -184,7 +186,7 @@ public class UserControllerTest extends ControllerTest {
                     .willReturn(true);
 
             // when
-            ResultActions resultActions = mockMvc.perform(get("/members/validation/{field}", field)
+            ResultActions resultActions = mockMvc.perform(get(PATH, field)
                     .param("value", nickname));
 
             // then
@@ -203,7 +205,7 @@ public class UserControllerTest extends ControllerTest {
                     .willReturn(false);
 
             // when
-            ResultActions resultActions = mockMvc.perform(get("/members/validation/{field}", field)
+            ResultActions resultActions = mockMvc.perform(get(PATH, field)
                     .param("value", email));
 
             // then
@@ -222,7 +224,7 @@ public class UserControllerTest extends ControllerTest {
                     .willReturn(true);
 
             // when
-            ResultActions resultActions = mockMvc.perform(get("/members/validation/{field}", field)
+            ResultActions resultActions = mockMvc.perform(get(PATH, field)
                     .param("value", email));
 
             // then
