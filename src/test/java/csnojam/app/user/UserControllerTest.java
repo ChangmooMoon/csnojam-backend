@@ -1,11 +1,15 @@
 package csnojam.app.user;
 
 
+import com.epages.restdocs.apispec.ResourceDocumentation;
+import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import csnojam.app.common.ControllerTest;
 import csnojam.app.user.dto.UserJoinDto;
 import csnojam.app.user.dto.UserLoginDto;
+import csnojam.app.user.enums.UniqueFields;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -16,13 +20,24 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.UUID;
 
+import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
+import static csnojam.app.common.response.StatusMessage.INVALID_FIELD;
+import static csnojam.app.common.response.StatusMessage.VALID_FIELD;
+import static csnojam.app.utils.ApiDocumentUtils.getDocumentRequest;
+import static csnojam.app.utils.ApiDocumentUtils.getDocumentResponse;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
 public class UserControllerTest extends ControllerTest {
+    private final String TAG = "사용자";
 
     @MockBean
     private UserService userService;
@@ -55,7 +70,7 @@ public class UserControllerTest extends ControllerTest {
                 .andDo(print());
 
         // then
-        perform.andExpect(MockMvcResultMatchers.status().isOk())
+        perform.andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string("success"));
     }
 
@@ -88,7 +103,7 @@ public class UserControllerTest extends ControllerTest {
 
 
         // then
-        perform.andExpect(MockMvcResultMatchers.status().isOk())
+        perform.andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string("success"));
     }
 
@@ -113,7 +128,106 @@ public class UserControllerTest extends ControllerTest {
                 .andDo(print());
 
         // then
-        perform.andExpect(MockMvcResultMatchers.status().is4xxClientError())
+        perform.andExpect(status().is4xxClientError())
                 .andExpect(MockMvcResultMatchers.content().string("error"));
+    }
+
+    @DisplayName("필드 중복 확인")
+    @Nested
+    class Duplication {
+        @DisplayName("중복되지 않은 닉네임")
+        @Test
+        void uniqueNickname() throws Exception {
+            // given
+            String field = "nickname";
+            String nickname = "testUser";
+
+            given(userService.checkFieldDuplication(eq(UniqueFields.NICKNAME), eq(nickname)))
+                    .willReturn(false);
+
+            // when
+            ResultActions resultActions = mockMvc.perform(get("/members/validation/{field}", field)
+                    .param("value", nickname));
+
+            // then
+            resultActions.andExpect(status().isOk())
+                    .andExpect(jsonPath("$.message").value(VALID_FIELD.getMessage()));
+
+            // documentation
+            resultActions.andDo(document("check validation",
+                    getDocumentRequest(),
+                    getDocumentResponse(),
+                    ResourceDocumentation.resource(
+                            ResourceSnippetParameters.builder()
+                                    .tag(TAG)
+                                    .description("닉네임이나 이메일의 중복 여부를 반환")
+                                    .summary("닉네임/이메일 중복 체크")
+                                    .pathParameters(
+                                            parameterWithName("field").description("중복 체크할 필드 (nickname/email)")
+                                    )
+                                    .requestParameters(
+                                            parameterWithName("value").description("입력된 닉네임이나 이메일 값")
+                                    )
+                                    .build()
+                    )
+            ));
+        }
+
+        @DisplayName("중복된 닉네임")
+        @Test
+        void duplicatedNickname() throws Exception {
+            // given
+            String field = "nickname";
+            String nickname = "testUser";
+
+            given(userService.checkFieldDuplication(eq(UniqueFields.NICKNAME), eq(nickname)))
+                    .willReturn(true);
+
+            // when
+            ResultActions resultActions = mockMvc.perform(get("/members/validation/{field}", field)
+                    .param("value", nickname));
+
+            // then
+            resultActions.andExpect(status().isConflict())
+                    .andExpect(jsonPath("$.message").value(INVALID_FIELD.getMessage()));
+        }
+
+        @DisplayName("중복되지 않은 이메일")
+        @Test
+        void uniqueEmail() throws Exception {
+            // given
+            String field = "email";
+            String email = "test@gmail.com";
+
+            given(userService.checkFieldDuplication(eq(UniqueFields.EMAIL), eq(email)))
+                    .willReturn(false);
+
+            // when
+            ResultActions resultActions = mockMvc.perform(get("/members/validation/{field}", field)
+                    .param("value", email));
+
+            // then
+            resultActions.andExpect(status().isOk())
+                    .andExpect(jsonPath("$.message").value(VALID_FIELD.getMessage()));
+        }
+
+        @DisplayName("중복된 이메일")
+        @Test
+        void duplicatedEmail() throws Exception {
+            // given
+            String field = "email";
+            String email = "test@gmail.com";
+
+            given(userService.checkFieldDuplication(eq(UniqueFields.EMAIL), eq(email)))
+                    .willReturn(true);
+
+            // when
+            ResultActions resultActions = mockMvc.perform(get("/members/validation/{field}", field)
+                    .param("value", email));
+
+            // then
+            resultActions.andExpect(status().isConflict())
+                    .andExpect(jsonPath("$.message").value(INVALID_FIELD.getMessage()));
+        }
     }
 }
