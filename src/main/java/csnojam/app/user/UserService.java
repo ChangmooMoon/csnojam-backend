@@ -2,6 +2,7 @@ package csnojam.app.user;
 
 import csnojam.app.common.exception.ApiException;
 import csnojam.app.jwt.JwtProvider;
+import csnojam.app.user.dto.UserInfoDto;
 import csnojam.app.user.dto.UserJoinDto;
 import csnojam.app.user.dto.UserLoginDto;
 import csnojam.app.user.enums.UniqueFields;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 import static csnojam.app.common.response.StatusMessage.ERROR;
+import static csnojam.app.common.response.StatusMessage.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -88,5 +90,11 @@ public class UserService {
 
     private boolean isEmailDuplicated(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    public UserInfoDto getUserInfo(UUID id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ApiException(USER_NOT_FOUND));
+        return UserInfoDto.of(user);
     }
 }
