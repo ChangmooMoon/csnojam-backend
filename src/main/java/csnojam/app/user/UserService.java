@@ -1,7 +1,10 @@
 package csnojam.app.user;
 
+import csnojam.app.common.exception.ApiException;
 import csnojam.app.jwt.JwtProvider;
-import csnojam.app.user.dto.*;
+import csnojam.app.user.dto.UserJoinDto;
+import csnojam.app.user.dto.UserLoginDto;
+import csnojam.app.user.enums.UniqueFields;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -9,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
+
+import static csnojam.app.common.response.StatusMessage.ERROR;
 
 @Service
 @RequiredArgsConstructor
@@ -64,5 +69,24 @@ public class UserService {
         else{
             throw new Exception();
         }
+    }
+
+    public boolean checkFieldDuplication(UniqueFields fields, String value) {
+        switch (fields) {
+            case NICKNAME:
+                return isNicknameDuplicated(value);
+            case EMAIL:
+                return isEmailDuplicated(value);
+            default:
+                throw new ApiException(ERROR);
+        }
+    }
+
+    private boolean isNicknameDuplicated(String nickname) {
+        return userRepository.existsByNickname(nickname);
+    }
+
+    private boolean isEmailDuplicated(String email) {
+        return userRepository.existsByEmail(email);
     }
 }
