@@ -1,5 +1,8 @@
 package csnojam.app.user;
 
+import csnojam.app.common.exception.ApiException;
+import csnojam.app.common.response.StatusMessage;
+import csnojam.app.user.dto.UserInfoDto;
 import csnojam.app.user.enums.UniqueFields;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -9,7 +12,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.eq;
 import static org.mockito.BDDMockito.given;
 
@@ -90,6 +97,51 @@ class UserServiceTest {
 
             // then
             assertThat(result).isTrue();
+        }
+    }
+
+    @DisplayName("사용자 정보 조회")
+    @Nested
+    class UserInfo {
+        @DisplayName("성공")
+        @Test
+        void success() {
+            // given
+            UUID id = UUID.randomUUID();
+            String email = "test@gmail.com";
+
+            User user = User.builder()
+                    .id(id)
+                    .email(email)
+                    .build();
+
+            given(userRepository.findById(eq(id)))
+                    .willReturn(Optional.of(user));
+
+            // when
+            UserInfoDto result = userService.getUserInfo(id);
+
+            // then
+            assertThat(result.getEmail())
+                    .isEqualTo(email);
+        }
+
+        @DisplayName("해당 id의 유저가 없음")
+        @Test
+        void userNotFound() {
+            // given
+            UUID id = UUID.randomUUID();
+
+            given(userRepository.findById(id))
+                    .willReturn(Optional.empty());
+
+            // when
+            ApiException exception = assertThrows(ApiException.class,
+                    () -> userService.getUserInfo(id));
+
+            // then
+            assertThat(exception.getStatusMessage())
+                    .isEqualTo(StatusMessage.USER_NOT_FOUND);
         }
     }
 }
