@@ -1,18 +1,17 @@
 package csnojam.app.user;
 
 import csnojam.app.common.response.ApiResponse;
-import csnojam.app.user.dto.*;
+import csnojam.app.user.dto.UserInfoDto;
+import csnojam.app.user.dto.UserJoinDto;
+import csnojam.app.user.dto.UserLoginDto;
 import csnojam.app.user.enums.UniqueFields;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 import static csnojam.app.common.response.StatusMessage.*;
 
@@ -57,5 +56,11 @@ public class UserController {
             return ApiResponse.withNothing(INVALID_FIELD);
         else
             return ApiResponse.withNothing(VALID_FIELD);
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<?> getUserInfo(@PathVariable UUID id) {
+        UserInfoDto userInfo = userService.getUserInfo(id);
+        return ApiResponse.withBody(SUCCESS, userInfo);
     }
 }
