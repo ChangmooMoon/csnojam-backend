@@ -1,10 +1,10 @@
 package csnojam.app.user;
 
 
-import com.epages.restdocs.apispec.ResourceDocumentation;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import csnojam.app.common.ControllerTest;
+import csnojam.app.user.dto.UserInfoDto;
 import csnojam.app.user.dto.UserJoinDto;
 import csnojam.app.user.dto.UserLoginDto;
 import csnojam.app.user.enums.UniqueFields;
@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.UUID;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
+import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static csnojam.app.common.response.StatusMessage.INVALID_FIELD;
 import static csnojam.app.common.response.StatusMessage.VALID_FIELD;
 import static csnojam.app.utils.ApiDocumentUtils.getDocumentRequest;
@@ -29,6 +30,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -156,10 +158,10 @@ public class UserControllerTest extends ControllerTest {
                     .andExpect(jsonPath("$.message").value(VALID_FIELD.getMessage()));
 
             // documentation
-            resultActions.andDo(document("checkValidation",
+            resultActions.andDo(document("checkUserFieldValidation",
                     getDocumentRequest(),
                     getDocumentResponse(),
-                    ResourceDocumentation.resource(
+                    resource(
                             ResourceSnippetParameters.builder()
                                     .tag(TAG)
                                     .description("닉네임이나 이메일의 중복 여부를 반환")
@@ -230,6 +232,60 @@ public class UserControllerTest extends ControllerTest {
             // then
             resultActions.andExpect(status().isConflict())
                     .andExpect(jsonPath("$.message").value(INVALID_FIELD.getMessage()));
+        }
+    }
+
+    @DisplayName("유저 정보 조회")
+    @Nested
+    class UserInfo {
+        @DisplayName("성공")
+        @Test
+        void success() throws Exception {
+            // given
+            UUID id = UUID.randomUUID();
+            String email = "test@gmail.com";
+            String nickname = "testUser";
+            String profileUrl = "testUrl";
+
+            UserInfoDto userInfo = UserInfoDto.builder()
+                    .email(email)
+                    .nickname(nickname)
+                    .profileUrl(profileUrl)
+                    .build();
+
+            given(userService.getUserInfo(eq(id)))
+                    .willReturn(userInfo);
+
+            // when
+            ResultActions resultActions = mockMvc.perform(get("/members/{id}", id));
+
+            // then
+            resultActions.andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.email").value(email))
+                    .andExpect(jsonPath("$.data.nickname").value(nickname))
+                    .andExpect(jsonPath("$.data.profileUrl").value(profileUrl));
+
+            // documentation
+            resultActions.andDo(document("getUserInfo",
+                    getDocumentRequest(),
+                    getDocumentResponse(),
+                    resource(
+                            ResourceSnippetParameters.builder()
+                                    .tag(TAG)
+                                    .description("해당 id의 사용자 정보를 반환")
+                                    .summary("사용자 정보 조회")
+                                    .pathParameters(
+                                            parameterWithName("id").description("사용자 고유번호")
+                                    )
+                                    .responseFields(
+                                            fieldWithPath("message").description("요청 결과"),
+                                            fieldWithPath("data.email").description("사용자 이메일"),
+                                            fieldWithPath("data.nickname").description("사용자 닉네임"),
+                                            fieldWithPath("data.profileUrl").description("사용자 프로필 사진 URL")
+                                    )
+                                    .build()
+                    )
+            ));
         }
     }
 }
