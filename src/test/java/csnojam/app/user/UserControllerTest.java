@@ -31,9 +31,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -306,7 +306,7 @@ public class UserControllerTest extends ControllerTest {
                     .build();
             String content = objectMapper.writeValueAsString(userUpdateDto);
 
-            willDoNothing().given(userService).changeUserNickname(eq(id), eq(nickname));
+            willDoNothing().given(userService).changeUserNickname(eq(id), any(UserUpdateDto.class));
 
             // when
             ResultActions resultActions = mockMvc.perform(patch("/members/{id}", id)
@@ -330,7 +330,7 @@ public class UserControllerTest extends ControllerTest {
                                             parameterWithName("id").description("사용자 고유번호")
                                     )
                                     .requestFields(
-                                            fieldWithPath("data.nickname").description("새로운 닉네임")
+                                            fieldWithPath("nickname").description("새로운 닉네임")
                                     )
                                     .build()
                     )
