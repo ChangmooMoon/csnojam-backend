@@ -33,11 +33,6 @@ public class User{
 
     private String profileUrl;
 
-    public User updateEmail(String email){
-        this.email = email;
-        return this;
-    }
-
     public void updateNickname(String nickname) {
         this.nickname = nickname;
     }
