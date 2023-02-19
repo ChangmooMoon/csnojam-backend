@@ -7,6 +7,7 @@ import csnojam.app.common.ControllerTest;
 import csnojam.app.user.dto.UserInfoDto;
 import csnojam.app.user.dto.UserJoinDto;
 import csnojam.app.user.dto.UserLoginDto;
+import csnojam.app.user.dto.UserUpdateDto;
 import csnojam.app.user.enums.UniqueFields;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -22,16 +23,17 @@ import java.util.UUID;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
-import static csnojam.app.common.response.StatusMessage.INVALID_FIELD;
-import static csnojam.app.common.response.StatusMessage.VALID_FIELD;
+import static csnojam.app.common.response.StatusMessage.*;
 import static csnojam.app.utils.ApiDocumentUtils.getDocumentRequest;
 import static csnojam.app.utils.ApiDocumentUtils.getDocumentResponse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -164,8 +166,8 @@ public class UserControllerTest extends ControllerTest {
                     resource(
                             ResourceSnippetParameters.builder()
                                     .tag(TAG)
-                                    .description("닉네임이나 이메일의 중복 여부를 반환")
                                     .summary("닉네임/이메일 중복 체크")
+                                    .description("닉네임이나 이메일의 중복 여부를 반환")
                                     .pathParameters(
                                             parameterWithName("field").description("중복 체크할 필드 (nickname/email)")
                                     )
@@ -272,8 +274,8 @@ public class UserControllerTest extends ControllerTest {
                     resource(
                             ResourceSnippetParameters.builder()
                                     .tag(TAG)
-                                    .description("해당 id의 사용자 정보를 반환")
                                     .summary("사용자 정보 조회")
+                                    .description("해당 id의 사용자 정보를 반환")
                                     .pathParameters(
                                             parameterWithName("id").description("사용자 고유번호")
                                     )
@@ -282,6 +284,53 @@ public class UserControllerTest extends ControllerTest {
                                             fieldWithPath("data.email").description("사용자 이메일"),
                                             fieldWithPath("data.nickname").description("사용자 닉네임"),
                                             fieldWithPath("data.profileUrl").description("사용자 프로필 사진 URL")
+                                    )
+                                    .build()
+                    )
+            ));
+        }
+    }
+
+    @DisplayName("유저 닉네임 수정")
+    @Nested
+    class UserUpdate {
+        @DisplayName("성공")
+        @Test
+        void success() throws Exception {
+            // given
+            UUID id = UUID.randomUUID();
+            String nickname = "updatedNickname";
+
+            UserUpdateDto userUpdateDto = UserUpdateDto.builder()
+                    .nickname(nickname)
+                    .build();
+            String content = objectMapper.writeValueAsString(userUpdateDto);
+
+            willDoNothing().given(userService).changeUserNickname(eq(id), eq(nickname));
+
+            // when
+            ResultActions resultActions = mockMvc.perform(patch("/members/{id}", id)
+                    .content(content)
+                    .contentType(MediaType.APPLICATION_JSON));
+
+            // then
+            resultActions.andExpect(status().isOk())
+                    .andExpect(jsonPath("$.message").value(SUCCESS.getMessage()));
+
+            // documentation
+            resultActions.andDo(document("updateUserNickname",
+                    getDocumentRequest(),
+                    getDocumentResponse(),
+                    resource(
+                            ResourceSnippetParameters.builder()
+                                    .tag(TAG)
+                                    .summary("사용자 닉네임 수정")
+                                    .description("사용자의 고유번호와 새로운 닉네임을 받아 수정")
+                                    .pathParameters(
+                                            parameterWithName("id").description("사용자 고유번호")
+                                    )
+                                    .requestFields(
+                                            fieldWithPath("data.nickname").description("새로운 닉네임")
                                     )
                                     .build()
                     )
