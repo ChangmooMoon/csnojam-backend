@@ -5,6 +5,7 @@ import csnojam.app.jwt.JwtProvider;
 import csnojam.app.user.dto.UserInfoDto;
 import csnojam.app.user.dto.UserJoinDto;
 import csnojam.app.user.dto.UserLoginDto;
+import csnojam.app.user.dto.UserUpdateDto;
 import csnojam.app.user.enums.UniqueFields;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -96,5 +97,12 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ApiException(USER_NOT_FOUND));
         return UserInfoDto.of(user);
+    }
+
+    @Transactional
+    public void changeUserNickname(UUID id, UserUpdateDto userUpdateDto) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ApiException(USER_NOT_FOUND));
+        user.updateNickname(userUpdateDto.getNickname());
     }
 }
