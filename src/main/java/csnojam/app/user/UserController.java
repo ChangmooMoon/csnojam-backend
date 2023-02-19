@@ -4,6 +4,7 @@ import csnojam.app.common.response.ApiResponse;
 import csnojam.app.user.dto.UserInfoDto;
 import csnojam.app.user.dto.UserJoinDto;
 import csnojam.app.user.dto.UserLoginDto;
+import csnojam.app.user.dto.UserUpdateDto;
 import csnojam.app.user.enums.UniqueFields;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,5 +63,12 @@ public class UserController {
     public ResponseEntity<?> getUserInfo(@PathVariable UUID id) {
         UserInfoDto userInfo = userService.getUserInfo(id);
         return ApiResponse.withBody(SUCCESS, userInfo);
+    }
+
+    @PatchMapping("{id}")
+    public ResponseEntity<?> updateUserInfo(@PathVariable UUID id,
+                                            UserUpdateDto userUpdateDto) {
+        userService.changeUserNickname(id, userUpdateDto);
+        return ApiResponse.withNothing(SUCCESS);
     }
 }
