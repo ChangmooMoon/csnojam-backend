@@ -38,9 +38,12 @@ public class User{
         return this;
     }
 
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
     public User updateProfileUrl(String profileUrl){
         this.profileUrl = profileUrl;
         return this;
     }
-
 }
