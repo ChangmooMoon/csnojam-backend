@@ -1,15 +1,19 @@
 package csnojam.app.user.dto;
 
 import csnojam.app.user.User;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Builder
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserInfoDto {
-    private final String email;
-    private final String nickname;
-    private final String profileUrl;
+    private String email;
+    private String nickname;
+    private String profileUrl;
 
     public static UserInfoDto of(User user) {
         return UserInfoDto.builder()
