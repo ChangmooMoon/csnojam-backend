@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.UUID;
 
 import static csnojam.app.common.response.StatusMessage.*;
@@ -67,7 +68,7 @@ public class UserController {
 
     @PatchMapping("{id}")
     public ResponseEntity<?> updateUserInfo(@PathVariable UUID id,
-                                            UserUpdateDto userUpdateDto) {
+                                            @RequestBody @Valid UserUpdateDto userUpdateDto) {
         userService.changeUserNickname(id, userUpdateDto);
         return ApiResponse.withNothing(SUCCESS);
     }

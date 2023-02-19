@@ -2,9 +2,13 @@ package csnojam.app.user.dto;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.NotBlank;
 
 @Builder
 @Data
 public class UserUpdateDto {
-    private final String nickname;
+    @NotBlank
+    private String nickname;
 }
