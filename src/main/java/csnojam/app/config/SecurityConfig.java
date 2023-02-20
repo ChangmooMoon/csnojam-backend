@@ -33,7 +33,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-        return http.csrf().disable()
+        return http
+                .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilterBefore(new JwtAuthorizationFilter(customAuthenticationManager, jwtProvider, userRepository), BasicAuthenticationFilter.class)
@@ -41,10 +42,11 @@ public class SecurityConfig {
                 .formLogin().disable()
                 .httpBasic().disable()
                 .authorizeRequests()
-                .antMatchers("/api/user/login", "/api/user/join").permitAll()
+                .antMatchers("/members/*", "/h2-console/*").permitAll()
                 .anyRequest().authenticated()
+                .and()
+                .headers().frameOptions().disable()
                 .and().build();
 
     }
-
 }
