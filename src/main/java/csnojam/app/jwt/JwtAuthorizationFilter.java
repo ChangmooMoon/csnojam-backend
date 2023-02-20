@@ -47,13 +47,4 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter{
         }
         chain.doFilter(request, response);
     }
-
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        Collection<String> excludeUrlPatterns = new LinkedHashSet<>();
-        excludeUrlPatterns.add("member/sign-in");
-        excludeUrlPatterns.add("member/login");
-        return excludeUrlPatterns.stream()
-                .anyMatch(pattern -> new AntPathMatcher().match(pattern, request.getServletPath()));
-    }
 }
