@@ -1,6 +1,7 @@
 package csnojam.app.user;
 
 import csnojam.app.common.response.ApiResponse;
+import csnojam.app.jwt.JwtProvider;
 import csnojam.app.user.dto.UserInfoDto;
 import csnojam.app.user.dto.UserJoinDto;
 import csnojam.app.user.dto.UserLoginDto;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.UUID;
 
@@ -24,30 +26,44 @@ import static csnojam.app.common.response.StatusMessage.*;
 public class UserController {
 
     private final UserService userService;
+    private final JwtProvider jwtProvider;
 
     @PostMapping("sign-up")
     public ResponseEntity<?> join(@RequestBody UserJoinDto userJoinDto){
+        ResponseEntity<?> responseEntity;
+        System.out.println("UserController: join 진입");
+        if (userJoinDto.getEmail() == null) {
+            responseEntity = ApiResponse.withNothing(EMPTY_EMAIL);
+            return responseEntity;
+        }
+        if (userJoinDto.getPassword() == null){
+            responseEntity = ApiResponse.withNothing(EMPTY_PASSWORD);
+            return responseEntity;
+        }
         try {
-            System.out.println("UserController: join 진입");
             userService.join(userJoinDto);
-            return new ResponseEntity<>("success", HttpStatus.OK);
+            responseEntity = ApiResponse.withNothing(SUCCESS);
+            return responseEntity;
         } catch (Exception e) {
             log.error(e.getMessage());
-            return new ResponseEntity<>("error", HttpStatus.INTERNAL_SERVER_ERROR);
+            responseEntity = ApiResponse.withNothing(ERROR);
+            return responseEntity;
         }
     }
 
     @PostMapping("sign-in")
-    public ResponseEntity<?> login(@RequestBody UserLoginDto userLoginDto){
+    public ResponseEntity<?> login(@RequestBody UserLoginDto userLoginDto, HttpServletResponse httpServletResponse){
+        ResponseEntity<?> responseEntity;
         try {
             System.out.println("UserController: login 진입");
-            String token = userService.login(userLoginDto);
-            return ResponseEntity.ok()
-                    .header("X-AUTH-TOKEN", token)
-                    .body("success");
+            String token  = userService.login(userLoginDto);
+            jwtProvider.writeTokenResponse(httpServletResponse, token);
+            responseEntity = ApiResponse.withNothing(SUCCESS);
+            return responseEntity;
         } catch (Exception e){
             log.error(e.getMessage());
-            return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
+            responseEntity = ApiResponse.withNothing(LOGIN_FAIL);
+            return responseEntity;
         }
     }
 
