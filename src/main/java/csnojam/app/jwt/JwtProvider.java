@@ -35,13 +35,13 @@ public class JwtProvider {
 
     public String createToken(UUID id){
         log.info("JWT Token 생성 시작");
-        Claims claims = Jwts.claims().setSubject(String.valueOf(id));
-        Date now = new Date();
+        Claims claims = Jwts.claims();
+        claims.put("id", id);
 
         JwtBuilder builder = Jwts.builder();
         builder.setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + tokenValidTime))
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis()+ tokenValidTime))
                 .signWith(SECRET_KEY, SignatureAlgorithm.HS256);
 
         log.info("JWT Token 생성 완료");
