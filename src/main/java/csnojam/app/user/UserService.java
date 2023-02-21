@@ -15,8 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-import static csnojam.app.common.response.StatusMessage.ERROR;
-import static csnojam.app.common.response.StatusMessage.USER_NOT_FOUND;
+import static csnojam.app.common.response.StatusMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -28,49 +27,32 @@ public class UserService {
     private final JwtProvider jwtProvider;
 
     @Transactional
-    public UUID join(UserJoinDto userJoinDto) throws Exception {
-        try{
-            System.out.println("이메일 체크");
-            checkDuplicateEmail(userJoinDto.getEmail());
-            System.out.println("닉네임 체크");
-            checkDuplicateName(userJoinDto.getName());
+    public UUID join(UserJoinDto userJoinDto) {
 
-            User user = User.builder()
-                    .email(userJoinDto.getEmail())
-                    .password(encoder.encode(userJoinDto.getPassword()))
-                    .nickname(userJoinDto.getName()).build();
-
-            System.out.println("유저 객체 생성");
-
-            userRepository.save(user);
-            return user.getId();
+        if (isEmailDuplicated(userJoinDto.getEmail())){
+            throw new ApiException(EMAIL_LOCKED);
         }
-        catch (Exception e){
-            throw e;
+        if(isNicknameDuplicated(userJoinDto.getName())){
+            throw  new ApiException(NICKNAME_LOCKED);
         }
+
+        User user = User.builder()
+                .email(userJoinDto.getEmail())
+                .password(encoder.encode(userJoinDto.getPassword()))
+                .nickname(userJoinDto.getName()).build();
+
+        userRepository.save(user);
+        return user.getId();
     }
 
-    private void checkDuplicateEmail(String email) throws Exception{
-        if (userRepository.findByEmail(email).isPresent()){
-            throw new Exception();
-        }
-    }
-
-    private void checkDuplicateName(String name) throws  Exception{
-        if(userRepository.findByNickname(name).isPresent()){
-            throw new Exception();
-        }
-    }
-
-    public String login(UserLoginDto userLoginDto) throws Exception{
+    public String login(UserLoginDto userLoginDto){
         User user = userRepository.findByEmail(userLoginDto.getEmail())
-                .orElseThrow(() -> new Exception("존재하지 않는 유저"));
+                .orElseThrow(() -> new ApiException(USER_NOT_FOUND));
         if (encoder.matches(userLoginDto.getPassword(), user.getPassword())){
-            String token = jwtProvider.createToken(user.getId());
-            return token;
+            return jwtProvider.createToken(user.getId());
         }
         else{
-            throw new Exception();
+            throw new ApiException(WRONG_PASSWORD);
         }
     }
 
