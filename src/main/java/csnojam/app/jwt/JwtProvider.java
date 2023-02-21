@@ -53,7 +53,7 @@ public class JwtProvider {
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
-    public void writeTokenResponse(HttpServletResponse response, String token) throws IOException {
+    public void writeTokenResponse(HttpServletResponse response, String token) {
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("text/html;charset=UTF-8");
         response.addHeader("X-AUTH-TOKEN", token);
